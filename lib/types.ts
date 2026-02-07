@@ -57,6 +57,10 @@ export interface Order {
   id: string
   customerName: string
   customerPhone: string
+  customerEmail: string
+  deliveryAddress: string
+  notes: string
+  paymentMethod: "cash" | "card" | "transfer"
   items: OrderItem[]
   total: number
   status: OrderStatus

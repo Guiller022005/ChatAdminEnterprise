@@ -5,8 +5,10 @@ import type {
   Conversation,
   ConversationMode,
   ConversationStatus,
+  Customer,
   Notification,
   Order,
+  OrderStatus,
   Product,
   User,
 } from "./types"
@@ -14,6 +16,7 @@ import {
   conversations as initialConversations,
   orders as initialOrders,
   products as initialProducts,
+  customers as initialCustomers,
   notifications as initialNotifications,
   currentUser,
 } from "./mock-data"
@@ -23,20 +26,24 @@ interface AppContextType {
   conversations: Conversation[]
   orders: Order[]
   products: Product[]
+  customers: Customer[]
   notifications: Notification[]
   updateConversationStatus: (id: string, status: ConversationStatus) => void
   updateConversationMode: (id: string, mode: ConversationMode, agentId?: string) => void
   markNotificationRead: (id: string) => void
   markAllNotificationsRead: () => void
   addMessage: (conversationId: string, content: string, sender: "human" | "customer") => void
+  updateOrderStatus: (id: string, status: OrderStatus) => void
+  addOrder: (order: Order) => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations)
-  const [orders] = useState<Order[]>(initialOrders)
+  const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [products] = useState<Product[]>(initialProducts)
+  const [customersList] = useState<Customer[]>(initialCustomers)
   const [notifs, setNotifs] = useState<Notification[]>(initialNotifications)
 
   const updateConversationStatus = useCallback((id: string, status: ConversationStatus) => {
@@ -77,6 +84,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setNotifs((prev) => prev.map((n) => ({ ...n, read: true })))
   }, [])
 
+  const updateOrderStatus = useCallback((id: string, status: OrderStatus) => {
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)))
+  }, [])
+
+  const addOrder = useCallback((order: Order) => {
+    setOrders((prev) => [order, ...prev])
+  }, [])
+
   const addMessage = useCallback(
     (conversationId: string, content: string, sender: "human" | "customer") => {
       setConversations((prev) =>
@@ -108,12 +123,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         conversations,
         orders,
         products,
+        customers: customersList,
         notifications: notifs,
         updateConversationStatus,
         updateConversationMode,
         markNotificationRead,
         markAllNotificationsRead,
         addMessage,
+        updateOrderStatus,
+        addOrder,
       }}
     >
       {children}
