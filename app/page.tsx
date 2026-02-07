@@ -1,3 +1,10 @@
+import { AppProvider } from "@/lib/app-context"
+import { AppShell } from "@/components/app-shell"
+
 export default function Page() {
-  return null
+  return (
+    <AppProvider>
+      <AppShell />
+    </AppProvider>
+  )
 }
